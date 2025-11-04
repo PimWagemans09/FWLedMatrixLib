@@ -44,44 +44,44 @@ namespace fw_led_matrix {
         VERSION = 0x20,
     };
 
-    namespace params {
-        enum Game : uint8_t {
-            SNAKE = 0x00,
-            PONG = 0x01,
-            TETRIS = 0x02,
-            GAME_OF_LIFE = 0x03,
-        };
+    constexpr struct {
+        const struct {
+            const uint8_t SNAKE = 0x00;
+            const uint8_t PONG = 0x01;
+            const uint8_t TETRIS = 0x02;
+            const uint8_t GAME_OF_LIFE = 0x03;
+        } game_select;
 
-        enum PatternValues : uint8_t{
-            PERCENTAGE = 0x00,
-            GRADIENT = 0x01,
-            DOUBLE_GRADIENT = 0x02,
-            DISPLAY_LOTUS = 0x03,
-            ZIG_ZAG = 0x04,
-            FULL_BRIGHTNESS = 0x05,
-            DISPLAY_PANIC = 0x06,
-            DISPLAY_LOTUS_2 = 0x07,
-        };
+        const struct {
+            const uint8_t PERCENTAGE = 0x00;
+            const uint8_t GRADIENT = 0x01;
+            const uint8_t DOUBLE_GRADIENT = 0x02;
+            const uint8_t DISPLAY_LOTUS = 0x03;
+            const uint8_t ZIG_ZAG = 0x04;
+            const uint8_t FULL_BRIGHTNESS = 0x05;
+            const uint8_t DISPLAY_PANIC = 0x06;
+            const uint8_t DISPLAY_LOTUS_2 = 0x07;
+        } pattern;
 
-        enum GameOfLifeStartParam : uint8_t{
-            CURRENT_MATRIX = 0x00,
-            PATTERN_1 = 0x01,
-            BLINKER = 0x02,
-            TOAD = 0x03,
-            BEACON = 0x04,
-            GLIDER = 0x05,
-        };
+        const struct {
+            const uint8_t CURRENT_MATRIX = 0x00;
+            const uint8_t PATTERN_1 = 0x01;
+            const uint8_t BLINKER = 0x02;
+            const uint8_t TOAD = 0x03;
+            const uint8_t BEACON = 0x04;
+            const uint8_t GLIDER = 0x05;
+        } game_of_life_start_value;
 
-        enum GameControlVal : uint8_t {
-            UP = 0,
-            DOWN = 1,
-            LEFT = 2,
-            RIGHT = 3,
-            QUIT = 4,
-            LEFT2 = 5,
-            RIGHT2 = 6,
-        };
-    }
+        const struct{
+            const uint8_t UP = 0;
+            const uint8_t DOWN = 1;
+            const uint8_t LEFT = 2;
+            const uint8_t RIGHT = 3;
+            const uint8_t QUIT = 4;
+            const uint8_t LEFT2 = 5;
+            const uint8_t RIGHT2 = 6;
+        } game_control;
+    } params;
 
     class LedMatrix {
     public:

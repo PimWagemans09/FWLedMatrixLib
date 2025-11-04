@@ -39,6 +39,8 @@ int main() {
     led_matrix.blit(image, 1,1);
     led_matrix.draw_matrix_greyscale();
 
-    led_matrix.send_command(fw_led_matrix::Command::GAME_CONTROL, {fw_led_matrix::params::QUIT});
+    led_matrix.send_command(fw_led_matrix::Command::GAME_CONTROL, {fw_led_matrix::params.game_control.QUIT});
+
+    led_matrix.send_command(fw_led_matrix::Command::PATTERN, {fw_led_matrix::params.pattern.ZIG_ZAG});
 
 }
