@@ -127,14 +127,14 @@ namespace fw_led_matrix {
         int blit(const std::vector<std::vector<uint8_t>> &data, unsigned int x, unsigned int y);
 
         /**
-         * draw the matrix using 1 bit color
+         * draw the internal matrix using 1 bit color
          * the brightness can be set using `fw_led_matrix::send_command(fw_led_matrix::Command::BRIGHTNESS, { <BRIGHTNESS HERE> });`
          * @return an error code, returns 0 on success, returns errno on failure on linux
          */
         int draw_matrix_black_white();
 
         /**
-         * draw the matrix using greyscale color
+         * draw the internal matrix using greyscale color
          * @return an error code, returns 0 on success, returns errno on failure on linux
          */
         int draw_matrix_greyscale();
@@ -145,6 +145,11 @@ namespace fw_led_matrix {
          * @return an error code, returns 0 on success, returns errno on failure on linux
          */
         int set_brightness(uint8_t brightness);
+
+        /**
+         * sets all values in the internal matrix to 0
+         */
+        void clear();
 
     private:
         std::string _path;

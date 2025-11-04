@@ -107,4 +107,12 @@ namespace fw_led_matrix {
     int LedMatrix::set_brightness(const uint8_t brightness) {
         return send_command(Command::BRIGHTNESS, {brightness}, false);
     }
+
+    void LedMatrix::clear() {
+        for (int x = 0; x < 9; x++) {
+            for (int y = 0; y < 34; y++) {
+                _matrix[x][y] = 0;
+            }
+        }
+    }
 }
