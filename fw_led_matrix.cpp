@@ -69,6 +69,18 @@ namespace fw_led_matrix {
         return SUCCESS;
     }
 
+    int LedMatrix::set_pixel(const uint8_t value, const unsigned int x, const unsigned int y) {
+        if (x > 8) {
+            return X_OUT_OF_BOUNDS;
+        }
+        if (y > 33) {
+            return Y_OUT_OF_BOUNDS;
+        }
+        _matrix[x][y] = value;
+        return SUCCESS;
+    }
+
+
     int LedMatrix::draw_matrix_black_white() {
         std::vector<uint8_t> vals = {};
 
@@ -115,4 +127,27 @@ namespace fw_led_matrix {
             }
         }
     }
+
+    int LedMatrix::game_start(const uint8_t game_id) {
+        if (game_id == params.game_id.GAME_OF_LIFE) {
+            return EXTRA_PARAM_REQUIRED;
+        }
+        return send_command(Command::START_GAME, std::vector<uint8_t>{game_id});
+    }
+
+    int LedMatrix::game_start(const uint8_t game_id, const uint8_t game_of_life_param) {
+        if (game_id != params.game_id.GAME_OF_LIFE) {
+            return TOO_MANY_PARAMS;
+        }
+        return send_command(Command::START_GAME, std::vector<uint8_t>{game_id, game_of_life_param});
+    }
+
+    int LedMatrix::game_quit() {
+        return send_command(Command::GAME_CONTROL, {params.game_control.QUIT});
+    }
+
+    int LedMatrix::game_control(uint8_t game_control_value) {
+        return send_command(Command::GAME_CONTROL, {game_control_value});
+    }
+
 }

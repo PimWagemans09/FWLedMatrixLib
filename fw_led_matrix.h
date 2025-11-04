@@ -11,11 +11,14 @@ namespace fw_led_matrix {
 
     enum error {
         SUCCESS = 0,
-        ERROR = 1,
-        X_OUT_OF_BOUNDS = 2,
-        Y_OUT_OF_BOUNDS = 3,
+        ERROR = -1,
+        X_OUT_OF_BOUNDS = -2,
+        Y_OUT_OF_BOUNDS = -3,
+        EXTRA_PARAM_REQUIRED = -4,
+        TOO_MANY_PARAMS = -5,
     };
 
+    // according to https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md
     enum class Command : uint8_t {
         BRIGHTNESS = 0x00,
         PATTERN = 0x01,
@@ -26,31 +29,19 @@ namespace fw_led_matrix {
         DRAW = 0x06,
         STAGE_COL = 0x07,
         COMMIT_COL = 0x08,
-        SET_TEXT = 0x09,
         START_GAME = 0x10,
         GAME_CONTROL = 0x11,
         GAME_STATUS = 0x12,
-        SET_COLOR = 0x13,
-        DISPLAY_ON = 0x14,
-        INVERT_SCREEN = 0x15,
-        SET_PIXEL_COLUMN = 0x16,
-        FLUSH_FRAME_BUFFER = 0x17,
-        CLEAR_RAM = 0x18,
-        SCREEN_SAVER = 0x19,
-        SET_FPS = 0x1A,
-        SET_POWER_MODE = 0x1B,
-        PWM_FREQ = 0x1E,
-        DEBUG_MODE = 0x1F,
         VERSION = 0x20,
     };
 
     constexpr struct {
-        const struct {
+        const struct{
             const uint8_t SNAKE = 0x00;
             const uint8_t PONG = 0x01;
             const uint8_t TETRIS = 0x02;
             const uint8_t GAME_OF_LIFE = 0x03;
-        } game_select;
+        } game_id;
 
         const struct {
             const uint8_t PERCENTAGE = 0x00;
@@ -70,7 +61,7 @@ namespace fw_led_matrix {
             const uint8_t TOAD = 0x03;
             const uint8_t BEACON = 0x04;
             const uint8_t GLIDER = 0x05;
-        } game_of_life_start_value;
+        } game_of_life_start_param;
 
         const struct{
             const uint8_t UP = 0;
@@ -127,6 +118,21 @@ namespace fw_led_matrix {
         int blit(const std::vector<std::vector<uint8_t>> &data, unsigned int x, unsigned int y);
 
         /**
+         * set a specific pixel in the internal matrix
+         *
+         * coordinates:
+         * the top-left corner is (0, 0) the bottom-right corner is (8,33)
+         *
+         * @param value the new value for the pixel
+         * @param x (accepted values: 0 to 8) the x position of the pixel
+         * @param y (accepted values: 0 to 33) the y position of the pixel
+         * @return `fw_led_matrix::SUCCESS` on success,
+         *      `fw_led_matrix::X_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the x-axis,
+         *      `fw_led_matrix::y_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the y-axis
+         */
+        int set_pixel(uint8_t value, unsigned int  x, unsigned int y);
+
+        /**
          * draw the internal matrix using 1 bit color
          * the brightness can be set using `fw_led_matrix::send_command(fw_led_matrix::Command::BRIGHTNESS, { <BRIGHTNESS HERE> });`
          * @return an error code, returns 0 on success, returns errno on failure on linux
@@ -150,6 +156,54 @@ namespace fw_led_matrix {
          * sets all values in the internal matrix to 0
          */
         void clear();
+
+        /**
+         * start a preloaded game on the matrix
+         * most other commands will stop working
+         *
+         * If you want to start the game of life you need to pass an extra parameter to this function.
+         * It must be one of the values in `fw_led_matrix::params.game_of_life_start_param`
+         * @param game_id the game to start, must be a value in `fw_led_matrix::params.game_id`
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
+         * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
+         * Returns errno on failure on linux
+         */
+        int game_start(uint8_t game_id);
+
+        /**
+         * start a preloaded game on the matrix
+         * most other commands will stop working
+         *
+         * If you want to start the game of life you need to pass an extra parameter to this function.
+         * It must be one of the values in `fw_led_matrix::params.game_of_life_start_param`
+         * @param game_id the game to start, must be a value in `fw_led_matrix::params.game_id`
+         * @param game_of_life_param an extra param needed when starting the game of life, must be a value in `fw_led_matrix::params.game_of_life_start_param`
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
+         * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
+         * Returns errno on failure on linux
+         */
+        int game_start(uint8_t game_id, uint8_t game_of_life_param);
+
+        /**
+         * quits the currently running preloaded game
+         * @return An error code.
+         * Returns 0 on error.
+         * Returns errno on failure on linux
+         */
+        int game_quit();
+
+        /**
+         *
+         * @param game_control_value the control value to send, must be a value in `fw_led_matrix::params.game_control`
+         * @return An error code.
+         * Returns 0 on success.
+         * returns errno on failure on linux.
+         */
+        int game_control(uint8_t game_control_value);
 
     private:
         std::string _path;
