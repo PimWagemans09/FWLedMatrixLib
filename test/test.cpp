@@ -34,13 +34,19 @@ int main() {
     r = led_matrix.send_command(fw_led_matrix::Command::BRIGHTNESS, {0x14});
     printf("Error %d (%s)\n", r, strerror(r));
 
-    r = led_matrix.game_start(fw_led_matrix::params.game_id.PONG);
-    printf("Error %d (%s)\n", r, strerror(r));
-    r = led_matrix.send_command(fw_led_matrix::Command::GAME_STATUS, {}, true);
-    printf("Error %d (%s)\n", r, strerror(r));
-    const std::vector<uint8_t> buffer2 = led_matrix.get_last_response();
-    for (const unsigned char i : buffer2) {
-        printf("%02x ", i);
-    }
+    r = led_matrix.blit(image, 0 ,0);
+    printf("Error %d (%s)\n", r , strerror(r));
+
+    r = led_matrix.draw_matrix_greyscale();
+    printf("Error %d (%s)", r, strerror(r));
+
+    //r = led_matrix.game_start(fw_led_matrix::params.game_id.PONG);
+    //printf("Error %d (%s)\n", r, strerror(r));
+    //r = led_matrix.send_command(fw_led_matrix::Command::GAME_STATUS, {}, true);
+    //printf("Error %d (%s)\n", r, strerror(r));
+    //const std::vector<uint8_t> buffer2 = led_matrix.get_last_response();
+    //for (const unsigned char i : buffer2) {
+    //    printf("%02x ", i);
+    //}
     //led_matrix.game_quit();
 }

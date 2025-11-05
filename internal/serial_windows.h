@@ -25,7 +25,7 @@ inline int platform_send_command(
 
     HANDLE handle = ::CreateFile(device_path.c_str(),
                                           GENERIC_READ | GENERIC_WRITE, //access ( read and write)
-                                          0, //(share) 0:cannot share the COM port
+                                          1, //(share) 0:cannot share the COM port
                                           nullptr, //security  (None)
                                           OPEN_EXISTING, // creation : open_existing
                                           FILE_ATTRIBUTE_NORMAL,
@@ -41,6 +41,15 @@ inline int platform_send_command(
     GetCommState(handle, &serialParams);
     serialParams.BaudRate = 115200;
     SetCommState(handle, &serialParams);
+
+    COMMTIMEOUTS commPortTimeouts;
+
+    commPortTimeouts.ReadIntervalTimeout = 1000;
+    commPortTimeouts.ReadTotalTimeoutMultiplier = 1000;
+    commPortTimeouts.ReadTotalTimeoutConstant = 1000;
+    commPortTimeouts.WriteTotalTimeoutMultiplier = 1000;
+    commPortTimeouts.WriteTotalTimeoutConstant = 1000;
+    SetCommTimeouts(handle, &commPortTimeouts);
 
     WriteFile(handle, data, data_size, &bytesWritten, nullptr);
 
@@ -58,7 +67,7 @@ inline int platform_send_command(
             break;
 
         }
-        /*
+
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
         auto time_span = duration_cast<std::chrono::duration<double>>(t2 - start);
@@ -69,14 +78,18 @@ inline int platform_send_command(
             }
             error = ERROR_TIMEOUT;
             break;
-        }* /
+        }
     }*/
 
     if (with_response and error == ERROR_SUCCESS) {
         uint8_t buffer[32];
         DWORD bytesRead = 0;
-        ReadFile(handle, &buffer, 32, &bytesRead, nullptr);
+        if (!ReadFile(handle, &buffer, 32, &bytesRead, nullptr)) {
+            printf("READ failed\n");
+        }
 
+        response.clear();
+        response.insert(response.end(), buffer, buffer + sizeof(buffer));
         error = GetLastError();
         /*while (!HasOverlappedIoCompleted(&ov)) {
             const DWORD lastError = GetLastError();
