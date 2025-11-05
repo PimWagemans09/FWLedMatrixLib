@@ -5,9 +5,8 @@
 #include <span>
 #include <vector>
 
-#include "internal/magic.h"
-
 namespace fw_led_matrix {
+    constexpr unsigned char FW_MAGIC[2] = {0x32,0xAC};
 
     enum error {
         SUCCESS = 0,

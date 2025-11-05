@@ -5,24 +5,151 @@
 #include <span>
 #include <utility>
 
-#include "internal/magic.h"
-
 #if defined(__linux)
-#include "internal/serial_linux.h"
+
+#include <cstdint>
+#include <cstring>
+#include <string>
+#include <unistd.h>
+#include <vector>
+#include <fcntl.h>
+#include <cerrno>
+#include <termios.h>
+
+static int platform_send_command(
+        const std::string &device_path,
+        const uint8_t data[],
+        const size_t data_size,
+        const bool with_response,
+        std::vector<uint8_t> *response) {
+    int error = 0;
+    const int serial_port = open(device_path.c_str(), O_RDWR);
+
+    if (serial_port < 0) {
+        printf("Error %i from open: %s\n", errno, std::strerror(errno));
+    }
+
+    termios tty{};
+
+    if(tcgetattr(serial_port, &tty) != 0) {
+        return 1;
+    }
+
+    cfsetispeed(&tty, B115200);
+    cfsetospeed(&tty, B115200);
+    tty.c_cc[VTIME] = 10;
+    tty.c_cc[VMIN] = 0;
+    ssize_t r = tcsetattr(serial_port, TCSANOW, &tty);
+    if (r < 0) {
+        error = errno;
+    }
+
+    if (error == 0) {
+        r = write(serial_port, data, data_size);
+        if (r < 0) {
+            error = errno;
+        }
+    }
+
+    if (with_response and error == 0) {
+        response->clear();
+        uint8_t read_buffer[32];
+        r = read(serial_port, read_buffer, sizeof(read_buffer));
+        if (r < 0) {
+            error = errno;
+        } else if (r == 0) {
+            error = ETIMEDOUT;
+        }else {
+            response->insert(response->end(), read_buffer, read_buffer + sizeof(read_buffer));
+        }
+    }
+
+    close(serial_port);
+
+    return error;
+}
+
 #elif defined(__WIN32)
-#include "internal/serial_windows.h"
+
+#include <chrono>
+#include <string>
+#include <vector>
+
+#include "Windows.h"
+
+static int platform_send_command(
+        const std::string &device_path,
+        const uint8_t data[],
+        const size_t data_size,
+        const bool with_response,
+        std::vector<uint8_t> *response) {
+    DWORD error = ERROR_SUCCESS;
+
+    DWORD bytesWritten = 0;
+
+    HANDLE handle = ::CreateFile(device_path.c_str(),
+                                          GENERIC_READ | GENERIC_WRITE, //access ( read and write)
+                                          1, //(share) 0:cannot share the COM port
+                                          nullptr, //security  (None)
+                                          OPEN_EXISTING, // creation : open_existing
+                                          FILE_ATTRIBUTE_NORMAL,
+                                          nullptr // no templates file for COM port...
+    );
+
+    if (handle == INVALID_HANDLE_VALUE) {
+        printf("Failed to open COM port\n");
+        return GetLastError();
+    }
+
+    DCB serialParams;
+    GetCommState(handle, &serialParams);
+    serialParams.BaudRate = 115200;
+    SetCommState(handle, &serialParams);
+
+    COMMTIMEOUTS commPortTimeouts;
+
+    commPortTimeouts.ReadIntervalTimeout = 1000;
+    commPortTimeouts.ReadTotalTimeoutMultiplier = 1000;
+    commPortTimeouts.ReadTotalTimeoutConstant = 1000;
+    commPortTimeouts.WriteTotalTimeoutMultiplier = 1000;
+    commPortTimeouts.WriteTotalTimeoutConstant = 1000;
+    SetCommTimeouts(handle, &commPortTimeouts);
+
+    WriteFile(handle, data, data_size, &bytesWritten, nullptr);
+
+    error = GetLastError();
+
+    if (with_response and error == ERROR_SUCCESS) {
+        uint8_t buffer[32];
+        DWORD bytesRead = 0;
+        if (!ReadFile(handle, &buffer, 32, &bytesRead, nullptr)) {
+            printf("READ failed\n");
+        }
+
+        response->clear();
+        response->insert(response->end(), buffer, buffer + sizeof(buffer));
+        error = GetLastError();
+    }
+
+    CloseHandle(handle);
+
+    return error;
+}
+
 #else
 #error unsupported OS. only linux and windows are supported. make sure either __linux or __WIN32 is defined
 // avoid other errors caused by above error
-inline int platform_send_command(
+static int platform_send_command(
         const std::string &device_path,
         const uint8_t data[],
-        size_t data_size,
-        bool with_response,
+        const size_t data_size,
+        const bool with_response,
         std::vector<uint8_t> *response);
 #endif
 
 namespace fw_led_matrix {
+
+
 
     LedMatrix::LedMatrix(std::string path): _path(std::move(path)), _matrix({{}}) {}
 
