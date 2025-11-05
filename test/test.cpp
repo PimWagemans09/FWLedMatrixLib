@@ -27,7 +27,7 @@ int main() {
     printf("Error %d (%s)\n", r, strerror(r));
     const std::vector<uint8_t> buffer = led_matrix.get_last_response();
     for (const unsigned char i : buffer) {
-        printf("%02x", i);
+        printf("%02x ", i);
     }
     printf("\n");
 
@@ -38,15 +38,15 @@ int main() {
     printf("Error %d (%s)\n", r , strerror(r));
 
     r = led_matrix.draw_matrix_greyscale();
-    printf("Error %d (%s)", r, strerror(r));
+    printf("Error %d (%s)\n", r, strerror(r));
 
-    //r = led_matrix.game_start(fw_led_matrix::params.game_id.PONG);
-    //printf("Error %d (%s)\n", r, strerror(r));
-    //r = led_matrix.send_command(fw_led_matrix::Command::GAME_STATUS, {}, true);
-    //printf("Error %d (%s)\n", r, strerror(r));
-    //const std::vector<uint8_t> buffer2 = led_matrix.get_last_response();
-    //for (const unsigned char i : buffer2) {
-    //    printf("%02x ", i);
-    //}
-    //led_matrix.game_quit();
+    r = led_matrix.game_start(fw_led_matrix::params.game_id.PONG);
+    printf("Error %d (%s)\n", r, strerror(r));
+    r = led_matrix.send_command(fw_led_matrix::Command::GAME_STATUS, {}, true);
+    printf("Error %d (%s)\n", r, strerror(r));
+    const std::vector<uint8_t> buffer2 = led_matrix.get_last_response();
+    for (const unsigned char i : buffer2) {
+        printf("%02x ", i);
+    }
+    led_matrix.game_quit();
 }

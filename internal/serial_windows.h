@@ -6,7 +6,6 @@
 #define FWLEDMATRIXLIB_SERIAL_WINDOWS_H
 
 #include <chrono>
-#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -21,7 +20,6 @@ inline int platform_send_command(
     DWORD error = ERROR_SUCCESS;
 
     DWORD bytesWritten = 0;
-    OVERLAPPED ov = {};
 
     HANDLE handle = ::CreateFile(device_path.c_str(),
                                           GENERIC_READ | GENERIC_WRITE, //access ( read and write)
@@ -55,32 +53,6 @@ inline int platform_send_command(
 
     error = GetLastError();
 
-    /*
-    //const std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    while (!HasOverlappedIoCompleted(&ov)) {
-        const DWORD lastError = GetLastError();
-        if (lastError == ERROR_SUCCESS) {
-            continue;
-        }
-        if (lastError != ERROR_IO_PENDING) {
-            error = lastError;
-            break;
-
-        }
-
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-
-        auto time_span = duration_cast<std::chrono::duration<double>>(t2 - start);
-        if (time_span.count() >= 10) {
-            printf("ERROR: led matrix cmd timeout\n");
-            if (!CancelIoEx(handle, &ov)) {
-                printf("ERROR: io cancel failed\n");
-            }
-            error = ERROR_TIMEOUT;
-            break;
-        }
-    }*/
-
     if (with_response and error == ERROR_SUCCESS) {
         uint8_t buffer[32];
         DWORD bytesRead = 0;
@@ -91,16 +63,6 @@ inline int platform_send_command(
         response.clear();
         response.insert(response.end(), buffer, buffer + sizeof(buffer));
         error = GetLastError();
-        /*while (!HasOverlappedIoCompleted(&ov)) {
-            const DWORD lastError = GetLastError();
-            if (lastError == ERROR_SUCCESS) {
-                continue;
-            }
-            if (lastError != ERROR_IO_PENDING) {
-                error = lastError;
-                break;
-            }
-        }*/
     }
 
     CloseHandle(handle);
