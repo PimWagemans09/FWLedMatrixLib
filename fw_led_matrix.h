@@ -85,7 +85,10 @@ namespace fw_led_matrix {
          * @param params a list of params to send, how many params are needed depends on the command
          * @param with_response if true, this will wait for a response for up to 1.0s,
          *      if no bytes where read the function wil return the timed out error code
-         * @return an error code, returns 0 on success, returns errno on failure on linux
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int send_command(Command cmd, const std::vector<uint8_t> &params, bool with_response = false);
 
@@ -134,20 +137,29 @@ namespace fw_led_matrix {
         /**
          * draw the internal matrix using 1 bit color
          * the brightness can be set using `fw_led_matrix::send_command(fw_led_matrix::Command::BRIGHTNESS, { <BRIGHTNESS HERE> });`
-         * @return an error code, returns 0 on success, returns errno on failure on linux
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int draw_matrix_black_white();
 
         /**
          * draw the internal matrix using greyscale color
-         * @return an error code, returns 0 on success, returns errno on failure on linux
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int draw_matrix_greyscale();
 
         /**
          * sets the brightness of the LED matrix
          * @param brightness the new brightness
-         * @return an error code, returns 0 on success, returns errno on failure on linux
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int set_brightness(uint8_t brightness);
 
@@ -167,7 +179,8 @@ namespace fw_led_matrix {
          * Returns 0 on success.
          * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
          * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
-         * Returns errno on failure on linux
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int game_start(uint8_t game_id);
 
@@ -183,24 +196,27 @@ namespace fw_led_matrix {
          * Returns 0 on success.
          * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
          * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
-         * Returns errno on failure on linux
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int game_start(uint8_t game_id, uint8_t game_of_life_param);
 
         /**
          * quits the currently running preloaded game
          * @return An error code.
-         * Returns 0 on error.
-         * Returns errno on failure on linux
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int game_quit();
 
         /**
-         *
+         * sends a control value to the game
          * @param game_control_value the control value to send, must be a value in `fw_led_matrix::params.game_control`
          * @return An error code.
          * Returns 0 on success.
-         * returns errno on failure on linux.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
          */
         int game_control(uint8_t game_control_value);
 

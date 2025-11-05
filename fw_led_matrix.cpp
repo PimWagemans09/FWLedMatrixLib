@@ -76,6 +76,7 @@ static int platform_send_command(
 #include <vector>
 
 #include "Windows.h"
+#include "intsafe.h"
 
 static int platform_send_command(
         const std::string &device_path,
@@ -97,7 +98,9 @@ static int platform_send_command(
     );
 
     if (handle == INVALID_HANDLE_VALUE) {
-        return GetLastError();
+        int error_int;
+        DWordToInt(GetLastError(), &error_int);
+        return error_int;
     }
 
     DCB serialParams;
@@ -130,7 +133,9 @@ static int platform_send_command(
 
     CloseHandle(handle);
 
-    return error;
+    int error_int;
+    DWordToInt(error, &error_int);
+    return error_int;
 }
 
 #else
