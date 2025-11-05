@@ -16,7 +16,7 @@ inline int platform_send_command(
         const uint8_t data[],
         const size_t data_size,
         const bool with_response,
-        std::vector<uint8_t> &response) {
+        std::vector<uint8_t> *response) {
     DWORD error = ERROR_SUCCESS;
 
     DWORD bytesWritten = 0;
@@ -60,8 +60,8 @@ inline int platform_send_command(
             printf("READ failed\n");
         }
 
-        response.clear();
-        response.insert(response.end(), buffer, buffer + sizeof(buffer));
+        response->clear();
+        response->insert(response->end(), buffer, buffer + sizeof(buffer));
         error = GetLastError();
     }
 

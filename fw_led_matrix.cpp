@@ -19,7 +19,7 @@ inline int platform_send_command(
         const uint8_t data[],
         size_t data_size,
         bool with_response,
-        std::vector<uint8_t> &response);
+        std::vector<uint8_t> *response);
 #endif
 
 namespace fw_led_matrix {
@@ -35,7 +35,7 @@ namespace fw_led_matrix {
         bytes[2] = static_cast<char>(cmd);
         std::ranges::copy(params, bytes + 3);
 
-        return platform_send_command(_path, bytes, n, with_response, _response);
+        return platform_send_command(_path, bytes, n, with_response, &_response);
     }
 
     const std::vector<uint8_t> &LedMatrix::get_last_response() const {
