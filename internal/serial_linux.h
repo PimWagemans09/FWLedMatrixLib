@@ -18,7 +18,7 @@ inline int platform_send_command(
         const uint8_t data[],
         const size_t data_size,
         const bool with_response,
-        std::vector<uint8_t> &response) {
+        std::vector<uint8_t> *response) {
     int error = 0;
     const int serial_port = open(device_path.c_str(), O_RDWR);
 
@@ -49,7 +49,7 @@ inline int platform_send_command(
     }
 
     if (with_response and error == 0) {
-        response.clear();
+        response->clear();
         uint8_t read_buffer[32];
         r = read(serial_port, read_buffer, sizeof(read_buffer));
         if (r < 0) {
@@ -57,7 +57,7 @@ inline int platform_send_command(
         } else if (r == 0) {
             error = ETIMEDOUT;
         }else {
-            response.insert(response.end(), read_buffer, read_buffer + sizeof(read_buffer));
+            response->insert(response->end(), read_buffer, read_buffer + sizeof(read_buffer));
         }
     }
 
