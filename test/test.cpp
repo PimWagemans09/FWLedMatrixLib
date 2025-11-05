@@ -22,7 +22,7 @@ std::vector<std::vector<uint8_t>> image = {
 
 
 int main() {
-    fw_led_matrix::LedMatrix led_matrix("/dev/ttyACM0");
+    fw_led_matrix::LedMatrix led_matrix("COM3");
     int r = led_matrix.send_command(fw_led_matrix::Command::VERSION, {}, true);
     printf("Error %d (%s)\n", r, strerror(r));
     const std::vector<uint8_t> buffer = led_matrix.get_last_response();
@@ -42,4 +42,5 @@ int main() {
     for (const unsigned char i : buffer2) {
         printf("%02x ", i);
     }
+    //led_matrix.game_quit();
 }

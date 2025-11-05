@@ -10,7 +10,7 @@
 #if defined(__linux)
 #include "internal/serial_linux.h"
 #elif defined(__WIN32)
-#include "serial_windows.h"
+#include "internal/serial_windows.h"
 #else
 #error unsupported OS. only linux and windows are supported. make sure either __linux or __WIN32 is defined
 // avoid other errors caused by above error
