@@ -97,7 +97,6 @@ static int platform_send_command(
     );
 
     if (handle == INVALID_HANDLE_VALUE) {
-        printf("Failed to open COM port\n");
         return GetLastError();
     }
 
@@ -122,9 +121,7 @@ static int platform_send_command(
     if (with_response and error == ERROR_SUCCESS) {
         uint8_t buffer[32];
         DWORD bytesRead = 0;
-        if (!ReadFile(handle, &buffer, 32, &bytesRead, nullptr)) {
-            printf("READ failed\n");
-        }
+        ReadFile(handle, &buffer, 32, &bytesRead, nullptr);
 
         response->clear();
         response->insert(response->end(), buffer, buffer + sizeof(buffer));
