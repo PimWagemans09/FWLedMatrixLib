@@ -22,9 +22,9 @@ std::vector<std::vector<uint8_t>> image = {
 
 
 int main() {
-    fw_led_matrix::LedMatrix led_matrix("/dev/ttyACM0");
+    fw_led_matrix::LedMatrix led_matrix("/dev/tttyACM0");
     int r = led_matrix.send_command(fw_led_matrix::Command::VERSION, {}, true);
-    printf("Error %d (%s)\n", r, strerror(r));
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
     const std::vector<uint8_t> buffer = led_matrix.get_last_response();
     for (const unsigned char i : buffer) {
         printf("%02x ", i);
@@ -32,25 +32,25 @@ int main() {
     printf("\n");
 
     r = led_matrix.send_command(fw_led_matrix::Command::BRIGHTNESS, {0x14});
-    printf("Error %d (%s)\n", r, strerror(r));
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
 
     r = led_matrix.blit(image, 0 ,0);
-    printf("Error %d (%s)\n", r , strerror(r));
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
 
     r = led_matrix.draw_matrix_greyscale();
-    printf("Error %d (%s)\n", r, strerror(r));
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
 
-    r = led_matrix.game_start(fw_led_matrix::params.game_id.PONG);
-    printf("Error %d (%s)\n", r, strerror(r));
+    r = led_matrix.game_start(fw_led_matrix::GameID::PONG);
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
 
-    r = led_matrix.game_control(fw_led_matrix::params.game_control.LEFT);
-    printf("Error %d (%s)\n", r, strerror(r));
+    r = led_matrix.game_control(fw_led_matrix::GameControl::LEFT);
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
 
-    r = led_matrix.send_command(fw_led_matrix::Command::GAME_STATUS, {}, true);
-    printf("Error %d (%s)\n", r, strerror(r));
-    const std::vector<uint8_t> buffer2 = led_matrix.get_last_response();
-    for (const unsigned char i : buffer2) {
-        printf("%02x ", i);
-    }
-    led_matrix.game_quit();
+    r = led_matrix.game_quit();
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
+
+    uint8_t brightness = 0;
+    r = led_matrix.get_brightness(&brightness);
+    printf("Error %d (%s)\n", r, fw_led_matrix::error_to_string(r).c_str());
+    printf("Brightness: 0x%02x\n", brightness);
 }

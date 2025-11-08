@@ -58,9 +58,15 @@ based on [https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands
 * GAME_STATUS - I don't know how this responds.
 * VERSION - responds with the version ( see above link for format )
 
-## Commands for the matrix
+## Functions to control the matrix
+
+
+
+## Raw communication with the matrix
 based on [https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md)
 
+
+### Commands
 these commands are defined in the enum fw_led_matrix::Command
 
 if a command appears twice in this table it means it has multiple variants that differ in parameters and/or response 
@@ -79,13 +85,12 @@ if a command appears twice in this table it means it has multiple variants that 
 | DRAWBW       | 0x06 |  39 bytes  |    -     | Draw a black & white image                                                        | `blit()` + `draw_matrix_black_white()`                        |
 | STAGE_COL    | 0x07 |  35 bytes  |    -     | Sends a column of brightnesses                                                    | `blit()` + `draw_matrix_greyscale()`                          |
 | COMMIT_COL   | 0x08 |     -      |    -     | Draw all columns sent by STAGE_COL                                                | `blit()` + `draw_matrix_greyscale()`                          |
-| START_GAME   | 0x09 | 1 byte***  |    -     | Start a pre-programmed game on the matrix***                                      | `game_start()`                                                |
+| START_GAME   | 0x09 | 1 byte***  |    -     | Start a pre-programmed game on the matrix****                                     | `game_start()`                                                |
 | GAME_CONTROL | 0x11 |   1 byte   |    -     | Control the currently running game                                                | `game_control()` / `game_quit()` (for quitting the game only) |
 | GAME_STATUS  | 0x12 |     -      |   ???    | I'm not quite sure what this does and don't know enough rust to read the firmware | -                                                             |
 | VERSION      | 0x20 |     -      | 3 bytes  | Gets the version info of the matrix                                               | -                                                             |
 
-*: The pattern PERCENTAGE is special it needs an extra parameter
-
-## parameters for commands
-
-TODO
++ *: The pattern `PERCENTAGE` is special it needs an extra parameter.
++ **: The LED matrix will stop responding after this.
++ ***: The game `GAME_OF_LIFE` is special it needs an extra parameter.
++ ***: The LED matrix will not respond normally to commands until the game is quit.

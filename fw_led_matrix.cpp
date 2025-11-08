@@ -26,7 +26,7 @@ static int platform_send_command(
     const int serial_port = open(device_path.c_str(), O_RDWR);
 
     if (serial_port < 0) {
-        printf("Error %i from open: %s\n", errno, std::strerror(errno));
+        return errno;
     }
 
     termios tty{};
@@ -67,6 +67,10 @@ static int platform_send_command(
     close(serial_port);
 
     return error;
+}
+
+static std::string platform_error_to_string(const int error) {
+    return "linux_errno: " + std::string(strerror(error));
 }
 
 #elif defined(__WIN32)
@@ -138,20 +142,44 @@ static int platform_send_command(
     return error_int;
 }
 
+static std::string platform_error_to_string(int error);
+
 #else
 #error unsupported OS. only linux and windows are supported. make sure either __linux or __WIN32 is defined
 // avoid other errors caused by above error
 static int platform_send_command(
         const std::string &device_path,
         const uint8_t data[],
-        const size_t data_size,
-        const bool with_response,
+        size_t data_size,
+        bool with_response,
         std::vector<uint8_t> *response);
+
+static std::string platform_error_to_string(int error);
 #endif
 
 namespace fw_led_matrix {
 
-
+    std::string error_to_string(const int error) {
+        if (error <= 0) {
+            switch (error) {
+                case 0:
+                    return "fw_led_matrix:Success";
+                case -1:
+                    return "fw_led_matrix:Error";
+                case -2:
+                    return "fw_led_matrix:X out of bounds";
+                case -3:
+                    return "fw_led_matrix:Y out of bounds";
+                case -4:
+                    return "fw_led_matrix:Extra parameter required";
+                case -5:
+                    return "fw_led_matrix:Too many parameters";
+                default:
+                    return "fw_led_matrix:Unknown error";
+            }
+        }
+        return platform_error_to_string(error);
+    }
 
     LedMatrix::LedMatrix(std::string path): _path(std::move(path)), _matrix({{}}) {}
 
@@ -161,7 +189,7 @@ namespace fw_led_matrix {
         uint8_t bytes[n];
 
         std::ranges::copy(FW_MAGIC, bytes);
-        bytes[2] = static_cast<char>(cmd);
+        bytes[2] = enum_to_value(cmd);
         std::ranges::copy(params, bytes + 3);
 
         return platform_send_command(_path, bytes, n, with_response, &_response);
@@ -249,6 +277,17 @@ namespace fw_led_matrix {
         return send_command(Command::BRIGHTNESS, {brightness}, false);
     }
 
+    int LedMatrix::get_brightness(uint8_t *brightness_out) {
+        int r = send_command(Command::BRIGHTNESS, {}, true);
+        if (r != 0) {
+            return r;
+        }
+        const std::vector<uint8_t> response = get_last_response();
+        *brightness_out = response[0];
+        return r;
+    }
+
+
     void LedMatrix::clear() {
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < 34; y++) {
@@ -257,26 +296,26 @@ namespace fw_led_matrix {
         }
     }
 
-    int LedMatrix::game_start(const uint8_t game_id) {
-        if (game_id == params.game_id.GAME_OF_LIFE) {
+    int LedMatrix::game_start(const GameID game_id) {
+        if (game_id == GameID::GAME_OF_LIFE) {
             return EXTRA_PARAM_REQUIRED;
         }
-        return send_command(Command::START_GAME, std::vector<uint8_t>{game_id});
+        return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id)}, false);
     }
 
-    int LedMatrix::game_start(const uint8_t game_id, const uint8_t game_of_life_param) {
-        if (game_id != params.game_id.GAME_OF_LIFE) {
+    int LedMatrix::game_start(const GameID game_id, const GameOfLifeStartParam game_of_life_param) {
+        if (game_id != GameID::GAME_OF_LIFE) {
             return TOO_MANY_PARAMS;
         }
-        return send_command(Command::START_GAME, std::vector<uint8_t>{game_id, game_of_life_param});
+        return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id), enum_to_value(game_of_life_param)}, false);
     }
 
     int LedMatrix::game_quit() {
-        return send_command(Command::GAME_CONTROL, {params.game_control.QUIT});
+        return send_command(Command::GAME_CONTROL, {enum_to_value(GameControl::QUIT)}, false);
     }
 
-    int LedMatrix::game_control(uint8_t game_control_value) {
-        return send_command(Command::GAME_CONTROL, {game_control_value});
+    int LedMatrix::game_control(GameControl game_control_value) {
+        return send_command(Command::GAME_CONTROL, {enum_to_value(game_control_value)}, false);
     }
 
 }
