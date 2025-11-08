@@ -70,7 +70,7 @@ static int platform_send_command(
 }
 
 static std::string platform_error_to_string(const int error) {
-    return "linux_errno: " + std::string(strerror(error));
+    return "linux_errno:" + std::string(strerror(error));
 }
 
 #elif defined(__WIN32)
