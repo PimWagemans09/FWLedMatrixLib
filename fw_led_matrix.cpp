@@ -142,7 +142,26 @@ static int platform_send_command(
     return error_int;
 }
 
-static std::string platform_error_to_string(int error);
+static std::string platform_error_to_string(int error) {
+    std::string message;
+    LPVOID lpMsgBuf;
+    DWORD bufLen = FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr,
+        error,
+        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
+        reinterpret_cast<LPTSTR>(&lpMsgBuf),
+        0, nullptr );
+    if (bufLen) {
+        const LPCSTR lpMsgStr = static_cast<LPCSTR>(lpMsgBuf);
+        message = std::string(lpMsgStr, lpMsgStr+bufLen);
+
+        LocalFree(lpMsgBuf);
+    }
+    return "windows_getlasterror:" + std::string(message);
+}
 
 #else
 #error unsupported OS. only linux and windows are supported. make sure either __linux or __WIN32 is defined
