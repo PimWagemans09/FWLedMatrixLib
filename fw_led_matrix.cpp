@@ -218,6 +218,58 @@ namespace fw_led_matrix {
         return _response;
     }
 
+    int LedMatrix::set_brightness(const uint8_t brightness) {
+        return send_command(Command::BRIGHTNESS, {brightness}, false);
+    }
+
+    int LedMatrix::get_brightness(uint8_t *brightness_out) {
+        int r = send_command(Command::BRIGHTNESS, {}, true);
+        if (r == 0) {
+            *brightness_out = get_last_response()[0];
+        }
+        return r;
+    }
+
+    int LedMatrix::display_pattern(Pattern pattern) {
+        return send_command(Command::PATTERN, {enum_to_value(pattern)}, false);
+    }
+
+    int LedMatrix::set_sleep(bool sleep) {
+        return send_command(Command::SLEEP, {sleep});
+    }
+
+    int LedMatrix::get_sleep(bool *sleep_out) {
+        int r = send_command(Command::SLEEP, {}, true);
+        if (r == 0) {
+            *sleep_out = get_last_response()[0];
+        }
+        return r;
+    }
+
+    int LedMatrix::set_animate(bool animate) {
+        return send_command(Command::ANIMATE, {animate});
+    }
+
+    int LedMatrix::get_animate(bool *animate_out) {
+        int r = send_command(Command::ANIMATE, {}, true);
+        if (r == 0) {
+            *animate_out = get_last_response()[0];
+        }
+        return r;
+    }
+
+    int LedMatrix::get_version(Version *version_out) {
+        int r = send_command(Command::VERSION, {}, true);
+        if (r == 0) {
+            version_out->major = get_last_response()[0];
+            version_out->minor = (get_last_response()[1] & 0b11110000) >> 4;
+            version_out->patch = get_last_response()[1] & 0b00001111;
+            version_out->is_prerelease = get_last_response()[2] & 0b00000001;
+        }
+        return r;
+    }
+
+
     const std::array<std::array<uint8_t, 34>, 9> &LedMatrix::get_matrix() const {
         return _matrix;
     }
@@ -291,21 +343,6 @@ namespace fw_led_matrix {
         }
         return SUCCESS;
     }
-
-    int LedMatrix::set_brightness(const uint8_t brightness) {
-        return send_command(Command::BRIGHTNESS, {brightness}, false);
-    }
-
-    int LedMatrix::get_brightness(uint8_t *brightness_out) {
-        int r = send_command(Command::BRIGHTNESS, {}, true);
-        if (r != 0) {
-            return r;
-        }
-        const std::vector<uint8_t> response = get_last_response();
-        *brightness_out = response[0];
-        return r;
-    }
-
 
     void LedMatrix::clear() {
         for (int x = 0; x < 9; x++) {

@@ -71,6 +71,21 @@ namespace fw_led_matrix {
             RIGHT2 = 6,
         };
 
+        struct Version {
+            uint8_t major;
+            uint8_t minor;
+            uint8_t patch;
+            bool is_prerelease;
+
+            [[nodiscard]] std::string to_string() const {
+                std::string suffix{};
+                if (is_prerelease) {
+                    suffix += "_prerelease";
+                }
+                return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch) + suffix;
+            }
+        };
+
         /**
          * convert an error code returned by this library to a string, prefixed with the source of the code.
          * @param error the code to format
@@ -115,6 +130,86 @@ namespace fw_led_matrix {
          * @return the last response
          */
         [[nodiscard]] const std::vector<uint8_t> &get_last_response() const;
+
+        /**
+         * sets the brightness of the LED matrix
+         * @param brightness the new brightness
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int set_brightness(uint8_t brightness);
+
+        /**
+         * gets the brightness of the matrix and stores it in brightness_out
+         * @param brightness_out where to store the brightness
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int get_brightness(uint8_t *brightness_out);
+
+        /**
+         * display e pre-programmed pattern on the matrix
+         * @param pattern the pattern to display
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int display_pattern(Pattern pattern);
+
+        /**
+         * sets if the matrix is asleep
+         * @param sleep the new sleep state
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int set_sleep(bool sleep);
+
+        /**
+         * gets if the matrix is asleep
+         * @param sleep_out where to store the sleep state
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int get_sleep(bool *sleep_out);
+
+        /**
+         * sets if the current pattern should scroll
+         * @param animate the new animation state
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int set_animate(bool animate);
+
+        /**
+         * gets if the current pattern is scrolling
+         * @param animate_out where to store if the current pattern is scrolling
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int get_animate(bool *animate_out);
+
+        /**
+         * gets the version info of the matrix
+         * @param version_out where to store the version info
+         * @return An error code.
+         * Returns 0 on success.
+         * Returns errno on failure on linux.
+         * Returns the result of GetLastError() on failure on windows.
+         */
+        int get_version(Version *version_out);
 
         /**
          * get the internal matrix
@@ -169,26 +264,6 @@ namespace fw_led_matrix {
          * Returns the result of GetLastError() on failure on windows.
          */
         int draw_matrix_greyscale();
-
-        /**
-         * sets the brightness of the LED matrix
-         * @param brightness the new brightness
-         * @return An error code.
-         * Returns 0 on success.
-         * Returns errno on failure on linux.
-         * Returns the result of GetLastError() on failure on windows.
-         */
-        int set_brightness(uint8_t brightness);
-
-        /**
-         * gets the brightness of the matrix and stores it in brightness_out
-         * @param brightness_out where to store the brightness
-         * @return An error code.
-         * Returns 0 on success.
-         * Returns errno on failure on linux.
-         * Returns the result of GetLastError() on failure on windows.
-         */
-        int get_brightness(uint8_t *brightness_out);
 
         /**
          * sets all values in the internal matrix to 0
