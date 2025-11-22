@@ -24,32 +24,6 @@ void main(){
 }
 ```
 
-## Getting a response
-NOTE: the response is always 32 bytes long even if the table below says it only responds with 1 byte, the rest ov the bytes will just be 0x00.
-
-```c++
-#include "FWLedMatrixLib/fw_led_matrix.h"
-
-void main(){
-    // replace "COM3" with the path to your device
-    // so something like COM<number> on Windows
-    // and something like /dev/ttyACM0 on Linux
-    fw_led_matrix::LedMatrix led_matrix("COM3")
-    
-    // to tell send_command that you expect a response call it with `with_response = true`
-    int r = led_matrix.send_command(fw_led_matrix::Command::VERSION, {}, true);
-    
-    // get what the last response was, may be empty if the command failed or no commands have been sent
-    const std::vector<uint8_t> buffer = led_matrix.get_last_response();
-    
-    // print the response (not necessary)
-    for (const unsigned char i : buffer) {
-        printf("%02x ", i);
-    }
-    printf("\n");
-}
-```
-
 ## drawing to the matrix
 
 Every instance of `fw_led_matrix::LedMatrix` has an internal matrix where you can make changes using
@@ -75,9 +49,9 @@ so if you where trying to blit:
 01110 | ░███░
 ```
 
-to the matrix at (2, 1)
+to the internal matrix at (2, 1)
 
-the resulting matrix (assuming it was empty before) will look like this
+the resulting internal matrix (assuming it was empty before) will look like this
 
 ```
 000000000 | ░░░░░░░░░
@@ -151,6 +125,28 @@ if a command appears twice in this table it means it has multiple variants that 
 + \*\*\*: The game `GAME_OF_LIFE` is special it needs an extra parameter.
 + \*\*\*\*: The LED matrix will not respond normally to commands until the game is quit.
 
-### Parameter types
+### Getting a response
+NOTE: the response is always 32 bytes long even if the table below says it only responds with 1 byte, the rest ov the bytes will just be 0x00.
 
-parameter types can be converted to bytes for usage with `fw_led_matrix::LedMatrix::send_command()` with `LedMatrix::enum_to_value()`
+```c++
+#include "FWLedMatrixLib/fw_led_matrix.h"
+
+void main(){
+    // replace "COM3" with the path to your device
+    // so something like COM<number> on Windows
+    // and something like /dev/ttyACM0 on Linux
+    fw_led_matrix::LedMatrix led_matrix("COM3")
+    
+    // to tell send_command that you expect a response call it with `with_response = true`
+    int r = led_matrix.send_command(fw_led_matrix::Command::BRIGHTNESS, {}, true);
+    
+    // get what the last response was, may be empty if the command failed or no commands have been sent
+    const std::vector<uint8_t> buffer = led_matrix.get_last_response();
+    
+    // print the response (not necessary)
+    for (const unsigned char i : buffer) {
+        printf("%02x ", i);
+    }
+    printf("\n");
+}
+```
