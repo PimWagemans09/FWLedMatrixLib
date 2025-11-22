@@ -1,4 +1,4 @@
-# A simple C++ library for the framework 16 LED matrix inputmodule
+# A simple C++ library for the framework 16 LED matrix input module
 
 This library has functions to easily send commands to a LED matrix, get the response, and definitions for all parameter types.
 
@@ -24,7 +24,7 @@ void main(){
 }
 ```
 
-## drawing to the matrix
+## Drawing to the matrix
 
 Every instance of `fw_led_matrix::LedMatrix` has an internal matrix where you can make changes using
 `fw_led_matrix::LedMatrix::blit()`.
@@ -67,11 +67,11 @@ the resulting internal matrix (assuming it was empty before) will look like this
 000000000 | ░░░░░░░░░
 ```
 
-### using blit
+### Using `blit`
 
 `fw_led_matrix:LedMatrix::blit()` can be used to blit a 2D "image" to the internal matrix
 
-`fw_led_matrix::LedMatrix::blit()` takes 3 arguments:
+`blit` takes 3 arguments:
 1. `std::vector<std::vector<uint8_t>> data` this is the data to blit in column-major order meaning `data` is a
     `std::vector`of columns, each column is a `std::vector` of bytes which are the values to blit
 2. `unsigned int x` the x coordinate of the position to blit to, accepted values: 0 to (8 - the amount of columns),
@@ -80,21 +80,91 @@ the resulting internal matrix (assuming it was empty before) will look like this
     0 to (33 - the height of the highest column),
     if x is greater than (33 - height of highest column) `blit` will return `fw_led_matrix::Y_OUT_OF_BOUNDS`
 
-### using set pixel
+### Using `set_pixel`
 
-`fw_led_matrix::LedMatrix::set_pixel` can be used to set a single pixel value on the internal matrix
+`fw_led_matrix::LedMatrix::set_pixel()` can be used to set a single pixel value on the internal matrix
 
-`fw_led_matrix::LedMatrix::set_pixel` takes 3 arguments
-1. `uint8_t value` the value to to write to the pixel
+`set_pixel` takes 3 arguments
+1. `uint8_t value` the value to write to the pixel
 2. `unsigned int x` the x coordinate of the position to blit to, accepted values: 0 to 8,
    if x is greater than 8 `blit` will return `fw_led_matrix::X_OUT_OF_BOUNDS`
 3. `unsigned int y` the y coordinate of the position to blit to, accepted values: 0 to 33,
    if x is greater than 33 `blit` will return `fw_led_matrix::Y_OUT_OF_BOUNDS
 
-## Raw communication with the matrix
-based on [https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md)
+## starting, playing, and quitting games
 
-ho to communicate with the matrix using `fw_led_matrix::LedMatrix::send_command()`
+When playing a game most other commands will stop working correctly.
+
+Unfortunately I can't get Tetris to work so it won't be explained here.
+
+### starting games
+
+To start a game use `fw_led_matrix::LedMatrix::game_start()`, it's usage depends on what game you're starting.
+
+#### Starting Conway's Game of Life
+
+To start Conway's Game of Life you need to pass two parameters to `game_start` like so:
+
+```c++
+led_matrix.game_start(fw_led_matrix::GameID::GAME_OF_LIFE, fw_led_matrix::GameOfLifeStartParam::<PATTERN_NAME>);
+```
+
+Just replace `<PATTERN_NAME>` with any of the following:
+
+* `CURRENT_MATRIX`
+* `PATTERN_1` 
+* `BLINKER`
+* `TOAD`
+* `BEACON`
+* `GLIDER`
+* `BLINKER_TOAD_BEACON`
+
+#### Starting Snake and Pong
+
+You can start Snake and Pong like so:
+
+```c++
+led_matrix.game_start(fw_led_matrix::GameID::<GAME_NAME>);
+```
+
+Just replace `<GAME_NAME>` with any of the following:
+
+* `SNAKE`
+* `PONG`
+
+### Controlling a game
+
+Conway's game of life doesn't have any controls
+
+Games can be controlled using `fw_led_matrix::LedMatrix::game_control()`
+
+What param to pass into `game_control` depends on the game that's being played.
+
+#### Controlling Snake
+
+* `fw_led_matrix::GameControl::UP` - the snake's head will move up
+* `fw_led_matrix::GameControl::DOWN` - the snake's head will move down
+* `fw_led_matrix::GameControl::LEFT` - the snake's head will move left
+* `fw_led_matrix::GameControl::RIGHT` - the snake's head will move right
+
+#### Controlling Pong
+
+* `fw_led_matrix::GameControl::LEFT` - Player 1's paddle will move left.
+* `fw_led_matrix::GameControl::RIGHT` - Player 1's paddle will move right.
+* `fw_led_matrix::GameControl::LEFT2` - Player 2's paddle will move left.
+* `fw_led_matrix::GameControl::RIGHT2` - Player 2's paddle will move right.
+
+### Quitting a game
+
+Any game can be quit in 2 ways:
+
+1. using `fw_led_matrix::LedMatrix::game_quit()`
+2. using `led_matrix.game_control(fw_led_matrix::GameControl::QUIT);`
+
+## Raw communication with the matrix
+based on [this document](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md)
+
+how to communicate with the matrix using `fw_led_matrix::LedMatrix::send_command()`
 
 ### Commands
 these commands are defined in the enum fw_led_matrix::Command
@@ -115,7 +185,7 @@ if a command appears twice in this table it means it has multiple variants that 
 | DRAWBW       | 0x06 |  39 bytes  |    -     | Draw a black & white image                                                        | `blit()` + `draw_matrix_black_white()`                        |
 | STAGE_COL    | 0x07 |  35 bytes  |    -     | Sends a column of brightnesses                                                    | `blit()` + `draw_matrix_greyscale()`                          |
 | COMMIT_COL   | 0x08 |     -      |    -     | Draw all columns sent by STAGE_COL                                                | `blit()` + `draw_matrix_greyscale()`                          |
-| START_GAME   | 0x09 | 1 byte***  |    -     | Start a pre-programmed game on the matrix****                                     | `game_start()`                                                |
+| START_GAME   | 0x10 | 1 byte***  |    -     | Start a pre-programmed game on the matrix****                                     | `game_start()`                                                |
 | GAME_CONTROL | 0x11 |   1 byte   |    -     | Control the currently running game                                                | `game_control()` / `game_quit()` (for quitting the game only) |
 | GAME_STATUS  | 0x12 |     -      |   ???    | I'm not quite sure what this does and don't know enough rust to read the firmware | -                                                             |
 | VERSION      | 0x20 |     -      | 3 bytes  | Gets the version info of the matrix                                               | `get_version()`                                               |
@@ -126,7 +196,7 @@ if a command appears twice in this table it means it has multiple variants that 
 + \*\*\*\*: The LED matrix will not respond normally to commands until the game is quit.
 
 ### Getting a response
-NOTE: the response is always 32 bytes long even if the table below says it only responds with 1 byte, the rest ov the bytes will just be 0x00.
+NOTE: the response is always 32 bytes long even if the table above says it only responds with 1 byte, the rest of the bytes will just be 0x00.
 
 ```c++
 #include "FWLedMatrixLib/fw_led_matrix.h"

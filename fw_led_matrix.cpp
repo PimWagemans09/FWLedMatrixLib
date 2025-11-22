@@ -370,7 +370,7 @@ namespace fw_led_matrix {
         return send_command(Command::GAME_CONTROL, {enum_to_value(GameControl::QUIT)}, false);
     }
 
-    int LedMatrix::game_control(GameControl game_control_value) {
+    int LedMatrix::game_control(const GameControl game_control_value) {
         return send_command(Command::GAME_CONTROL, {enum_to_value(game_control_value)}, false);
     }
 
