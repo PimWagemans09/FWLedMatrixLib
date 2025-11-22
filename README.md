@@ -134,9 +134,9 @@ Just replace `<GAME_NAME>` with any of the following:
 
 ### Controlling a game
 
-Conway's game of life doesn't have any controls
+Conway's game of life doesn't have any controls.
 
-Games can be controlled using `fw_led_matrix::LedMatrix::game_control()`
+Games can be controlled using `fw_led_matrix::LedMatrix::game_control()`.
 
 What param to pass into `game_control` depends on the game that's being played.
 
@@ -162,14 +162,14 @@ Any game can be quit in 2 ways:
 2. using `led_matrix.game_control(fw_led_matrix::GameControl::QUIT);`
 
 ## Raw communication with the matrix
-based on [this document](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md)
+Based on [this document](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md).
 
-how to communicate with the matrix using `fw_led_matrix::LedMatrix::send_command()`
+How to communicate with the matrix using `fw_led_matrix::LedMatrix::send_command()`.
 
 ### Commands
-these commands are defined in the enum fw_led_matrix::Command
+These commands are defined in the enum `fw_led_matrix::Command`.
 
-if a command appears twice in this table it means it has multiple variants that differ in parameters and/or response 
+If a command appears twice in this table it means it has multiple variants that differ in parameters and/or response 
 
 | Command      |  id  | Parameters | Response | Description                                                                       | Shorthand (Member function of `fw_led_matrix::LedMatrix`)     |
 |--------------|:----:|:----------:|:--------:|-----------------------------------------------------------------------------------|---------------------------------------------------------------|
