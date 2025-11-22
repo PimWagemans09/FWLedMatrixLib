@@ -59,6 +59,7 @@ namespace fw_led_matrix {
             TOAD = 0x03,
             BEACON = 0x04,
             GLIDER = 0x05,
+            BLINKER_TOAD_BEACON = 0x06,
         };
 
         enum class GameControl: uint8_t {
