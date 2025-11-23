@@ -20,7 +20,7 @@ void main(){
     led_matrix.set_brightness(128);
     
     // display the zig zag pattern
-    led_matrix.send_command(fw_led_matrix::Command::PATTERN, {fw_led_matrix::params.pattern.ZIG_ZAG});
+    led_matrix.display_pattern(fw_led_matrix::Pattern::ZIG_ZAG);
 }
 ```
 
