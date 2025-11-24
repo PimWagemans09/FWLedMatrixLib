@@ -14,7 +14,7 @@ void main(){
     // replace "COM3" with the path to your device
     // so something like COM<number> on Windows
     // and something like /dev/ttyACM0 on Linux
-    fw_led_matrix::LedMatrix led_matrix("COM3")
+    fw_led_matrix::LedMatrix led_matrix("COM3");
     
     // set to half brightness
     led_matrix.set_brightness(128);
@@ -23,6 +23,20 @@ void main(){
     led_matrix.display_pattern(fw_led_matrix::Pattern::ZIG_ZAG);
 }
 ```
+
+## General commands
+
+All of the functions below are methods of `fw_led_matrix::LedMatrix`
+
+* `set_brightness(uint8t value)` - sets the brightness of the matrix to `value`
+* `get_brightness(uint8t *brightness_out)` - gets the brightness and store it in `brightness_out`
+* `display_pattern(fw_led_matrix::Pattern pattern)` - displays a pre-programmed pattern on the matrix
+* `set_sleep(bool sleep)` - sets if the matrix is asleep or not to `sleep`
+* `get_sleep(bool *sleep_out)` - gets is the matrix is asleep or not and stores it in `sleep_out`
+* `set_animate(bool animate)` - sets if the matrix is animating (scrolling what's on the matrix) or not to `animate`
+* `get_animate(bool *animate_out)` - gets if the matrix is animating and stores it in `animate_out`
+* `get_version(fw_led_matrix::Version *version_out)` - gets the firmware version of the matrix
+    and stores it in `version_out`
 
 ## Drawing to the matrix
 
@@ -160,6 +174,19 @@ Any game can be quit in 2 ways:
 
 1. using `fw_led_matrix::LedMatrix::game_quit()`
 2. using `led_matrix.game_control(fw_led_matrix::GameControl::QUIT);`
+
+## Errors
+
+almost all functions in this library return an error code where:
+`0` is success and non-`0` (including negatives) is failure.
+
+To get an error message from the code use `fw_led_matrix::error_to_string(int error)`.
+
+The error message will be prefixed with the source of the error, the prefix will be:
+
+* `fw_led_matrix:` if the source is this library
+* `windows_getlasterror:` if the source is the Windows api
+* `linux_errno:` if the source is the linux "api" (functions like `open`, `read`, and `write`)
 
 ## Raw communication with the matrix
 Based on [this document](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md).
