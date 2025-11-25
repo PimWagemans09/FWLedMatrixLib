@@ -14,46 +14,46 @@ void main(){
     // replace "COM3" with the path to your device
     // so something like COM<number> on Windows
     // and something like /dev/ttyACM0 on Linux
-    fw_led_matrix::LedMatrix led_matrix("COM3");
+    fwlm::LedMatrix led_matrix("COM3");
     
     // set to half brightness
     led_matrix.set_brightness(128);
     
     // display the zig zag pattern
-    led_matrix.display_pattern(fw_led_matrix::Pattern::ZIG_ZAG);
+    led_matrix.display_pattern(fwlm::Pattern::ZIG_ZAG);
 }
 ```
 
 ## General commands
 
-All of the functions below are methods of `fw_led_matrix::LedMatrix`
+All of the functions below are methods of `fwlm::LedMatrix`
 
 * `set_brightness(uint8t value)` - sets the brightness of the matrix to `value`
 * `get_brightness(uint8t *brightness_out)` - gets the brightness and store it in `brightness_out`
-* `display_pattern(fw_led_matrix::Pattern pattern)` - displays a pre-programmed pattern on the matrix
+* `display_pattern(fwlm::Pattern pattern)` - displays a pre-programmed pattern on the matrix
 * `set_sleep(bool sleep)` - sets if the matrix is asleep or not to `sleep`
 * `get_sleep(bool *sleep_out)` - gets is the matrix is asleep or not and stores it in `sleep_out`
 * `set_animate(bool animate)` - sets if the matrix is animating (scrolling what's on the matrix) or not to `animate`
 * `get_animate(bool *animate_out)` - gets if the matrix is animating and stores it in `animate_out`
-* `get_version(fw_led_matrix::Version *version_out)` - gets the firmware version of the matrix
+* `get_version(fwlm::Version *version_out)` - gets the firmware version of the matrix
     and stores it in `version_out`
 
 ## Drawing to the matrix
 
-Every instance of `fw_led_matrix::LedMatrix` has an internal matrix where you can make changes using
-`fw_led_matrix::LedMatrix::blit()`.
+Every instance of `fwlm::LedMatrix` has an internal matrix where you can make changes using
+`fwlm::LedMatrix::blit()`.
 There are two ways of drawing the internal matrix to the actual matrix:
 
-* `fw_led_matrix::LedMatrix::draw_matrix_black_white()` will draw the internal matrix to the actual matrix
+* `fwlm::LedMatrix::draw_matrix_black_white()` will draw the internal matrix to the actual matrix
     it interprets the values in the internal matrix as booleans (0 = OFF, 1 to 255 = ON)
-* `fw_led_matrix::LedMatrix::draw_matrix_greyscale()` will draw the internal matrix to the actual matrix
+* `fwlm::LedMatrix::draw_matrix_greyscale()` will draw the internal matrix to the actual matrix
     it interprets the values in the internal matrix as brightness values
 
 ### coordinates
 
 the top-left corner is (0, 0), the bottom-right corner is (8, 33)
 
-when using `fw_led_matrix::LedMatrix::blit()` the top left corner of the "image" is used as the anchor
+when using `fwlm::LedMatrix::blit()` the top left corner of the "image" is used as the anchor
 so if you where trying to blit:
 ```
 01010 | ░█░█░ 
@@ -83,27 +83,27 @@ the resulting internal matrix (assuming it was empty before) will look like this
 
 ### Using `blit`
 
-`fw_led_matrix:LedMatrix::blit()` can be used to blit a 2D "image" to the internal matrix
+`fwlm:LedMatrix::blit()` can be used to blit a 2D "image" to the internal matrix
 
 `blit` takes 3 arguments:
 1. `std::vector<std::vector<uint8_t>> data` this is the data to blit in column-major order meaning `data` is a
     `std::vector`of columns, each column is a `std::vector` of bytes which are the values to blit
 2. `unsigned int x` the x coordinate of the position to blit to, accepted values: 0 to (8 - the amount of columns),
-    if x is greater than (8 - amount of columns) `blit` will return `fw_led_matrix::X_OUT_OF_BOUNDS` 
+    if x is greater than (8 - amount of columns) `blit` will return `fwlm::X_OUT_OF_BOUNDS` 
 3. `unsigned int y` the y coordinate of the position to blit to, accepted values:
     0 to (33 - the height of the highest column),
-    if x is greater than (33 - height of highest column) `blit` will return `fw_led_matrix::Y_OUT_OF_BOUNDS`
+    if x is greater than (33 - height of highest column) `blit` will return `fwlm::Y_OUT_OF_BOUNDS`
 
 ### Using `set_pixel`
 
-`fw_led_matrix::LedMatrix::set_pixel()` can be used to set a single pixel value on the internal matrix
+`fwlm::LedMatrix::set_pixel()` can be used to set a single pixel value on the internal matrix
 
 `set_pixel` takes 3 arguments
 1. `uint8_t value` the value to write to the pixel
 2. `unsigned int x` the x coordinate of the position to blit to, accepted values: 0 to 8,
-   if x is greater than 8 `blit` will return `fw_led_matrix::X_OUT_OF_BOUNDS`
+   if x is greater than 8 `blit` will return `fwlm::X_OUT_OF_BOUNDS`
 3. `unsigned int y` the y coordinate of the position to blit to, accepted values: 0 to 33,
-   if x is greater than 33 `blit` will return `fw_led_matrix::Y_OUT_OF_BOUNDS
+   if x is greater than 33 `blit` will return `fwlm::Y_OUT_OF_BOUNDS
 
 ## starting, playing, and quitting games
 
@@ -113,14 +113,14 @@ Unfortunately I can't get Tetris to work so it won't be explained here.
 
 ### starting games
 
-To start a game use `fw_led_matrix::LedMatrix::game_start()`, it's usage depends on what game you're starting.
+To start a game use `fwlm::LedMatrix::game_start()`, it's usage depends on what game you're starting.
 
 #### Starting Conway's Game of Life
 
 To start Conway's Game of Life you need to pass two parameters to `game_start` like so:
 
 ```c++
-led_matrix.game_start(fw_led_matrix::GameID::GAME_OF_LIFE, fw_led_matrix::GameOfLifeStartParam::<PATTERN_NAME>);
+led_matrix.game_start(fwlm::GameID::GAME_OF_LIFE, fwlm::GameOfLifeStartParam::<PATTERN_NAME>);
 ```
 
 Just replace `<PATTERN_NAME>` with any of the following:
@@ -138,7 +138,7 @@ Just replace `<PATTERN_NAME>` with any of the following:
 You can start Snake and Pong like so:
 
 ```c++
-led_matrix.game_start(fw_led_matrix::GameID::<GAME_NAME>);
+led_matrix.game_start(fwlm::GameID::<GAME_NAME>);
 ```
 
 Just replace `<GAME_NAME>` with any of the following:
@@ -150,55 +150,55 @@ Just replace `<GAME_NAME>` with any of the following:
 
 Conway's game of life doesn't have any controls.
 
-Games can be controlled using `fw_led_matrix::LedMatrix::game_control()`.
+Games can be controlled using `fwlm::LedMatrix::game_control()`.
 
 What param to pass into `game_control` depends on the game that's being played.
 
 #### Controlling Snake
 
-* `fw_led_matrix::GameControl::UP` - the snake's head will move up
-* `fw_led_matrix::GameControl::DOWN` - the snake's head will move down
-* `fw_led_matrix::GameControl::LEFT` - the snake's head will move left
-* `fw_led_matrix::GameControl::RIGHT` - the snake's head will move right
+* `fwlm::GameControl::UP` - the snake's head will move up
+* `fwlm::GameControl::DOWN` - the snake's head will move down
+* `fwlm::GameControl::LEFT` - the snake's head will move left
+* `fwlm::GameControl::RIGHT` - the snake's head will move right
 
 #### Controlling Pong
 
-* `fw_led_matrix::GameControl::LEFT` - Player 1's paddle will move left.
-* `fw_led_matrix::GameControl::RIGHT` - Player 1's paddle will move right.
-* `fw_led_matrix::GameControl::LEFT2` - Player 2's paddle will move left.
-* `fw_led_matrix::GameControl::RIGHT2` - Player 2's paddle will move right.
+* `fwlm::GameControl::LEFT` - Player 1's paddle will move left.
+* `fwlm::GameControl::RIGHT` - Player 1's paddle will move right.
+* `fwlm::GameControl::LEFT2` - Player 2's paddle will move left.
+* `fwlm::GameControl::RIGHT2` - Player 2's paddle will move right.
 
 ### Quitting a game
 
 Any game can be quit in 2 ways:
 
-1. using `fw_led_matrix::LedMatrix::game_quit()`
-2. using `led_matrix.game_control(fw_led_matrix::GameControl::QUIT);`
+1. using `fwlm::LedMatrix::game_quit()`
+2. using `led_matrix.game_control(fwlm::GameControl::QUIT);`
 
 ## Errors
 
 almost all functions in this library return an error code where:
 `0` is success and non-`0` (including negatives) is failure.
 
-To get an error message from the code use `fw_led_matrix::error_to_string(int error)`.
+To get an error message from the code use `fwlm::error_to_string(int error)`.
 
 The error message will be prefixed with the source of the error, the prefix will be:
 
-* `fw_led_matrix:` if the source is this library
+* `fwlm:` if the source is this library
 * `windows_getlasterror:` if the source is the Windows api
 * `linux_errno:` if the source is the linux "api" (functions like `open`, `read`, and `write`)
 
 ## Raw communication with the matrix
 Based on [this document](https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md).
 
-How to communicate with the matrix using `fw_led_matrix::LedMatrix::send_command()`.
+How to communicate with the matrix using `fwlm::LedMatrix::send_command()`.
 
 ### Commands
-These commands are defined in the enum `fw_led_matrix::Command`.
+These commands are defined in the enum `fwlm::Command`.
 
 If a command appears twice in this table it means it has multiple variants that differ in parameters and/or response 
 
-| Command      |  id  | Parameters | Response | Description                                                                       | Shorthand (Member function of `fw_led_matrix::LedMatrix`)     |
+| Command      |  id  | Parameters | Response | Description                                                                       | Shorthand (Member function of `fwlm::LedMatrix`)     |
 |--------------|:----:|:----------:|:--------:|-----------------------------------------------------------------------------------|---------------------------------------------------------------|
 | BRIGHTNESS   | 0x00 |   1 byte   |    -     | Sets the brightness                                                               | `set_brightness()`                                            |
 | BRIGHTNESS   | 0x00 |     -      |  1 byte  | Gets the brightness                                                               | `get_brightness()`                                            |
@@ -232,10 +232,10 @@ void main(){
     // replace "COM3" with the path to your device
     // so something like COM<number> on Windows
     // and something like /dev/ttyACM0 on Linux
-    fw_led_matrix::LedMatrix led_matrix("COM3")
+    fwlm::LedMatrix led_matrix("COM3")
     
     // to tell send_command that you expect a response call it with `with_response = true`
-    int r = led_matrix.send_command(fw_led_matrix::Command::BRIGHTNESS, {}, true);
+    int r = led_matrix.send_command(fwlm::Command::BRIGHTNESS, {}, true);
     
     // get what the last response was, may be empty if the command failed or no commands have been sent
     const std::vector<uint8_t> buffer = led_matrix.get_last_response();

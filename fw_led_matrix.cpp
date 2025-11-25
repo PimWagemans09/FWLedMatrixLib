@@ -173,25 +173,25 @@ static int platform_send_command(
 static std::string platform_error_to_string(int error);
 #endif
 
-namespace fw_led_matrix {
+namespace fwlm {
 
     std::string error_to_string(const int error) {
         if (error <= 0) {
             switch (error) {
                 case 0:
-                    return "fw_led_matrix:Success";
+                    return "fwlm:Success";
                 case -1:
-                    return "fw_led_matrix:Error";
+                    return "fwlm:Error";
                 case -2:
-                    return "fw_led_matrix:X out of bounds";
+                    return "fwlm:X out of bounds";
                 case -3:
-                    return "fw_led_matrix:Y out of bounds";
+                    return "fwlm:Y out of bounds";
                 case -4:
-                    return "fw_led_matrix:Extra parameter required";
+                    return "fwlm:Extra parameter required";
                 case -5:
-                    return "fw_led_matrix:Too many parameters";
+                    return "fwlm:Too many parameters";
                 default:
-                    return "fw_led_matrix:Unknown error";
+                    return "fwlm:Unknown error";
             }
         }
         return platform_error_to_string(error);
