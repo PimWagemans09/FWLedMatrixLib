@@ -4,14 +4,14 @@
 #include <iostream>
 #include <span>
 #include <utility>
+#include <vector>
+#include <string>
 
 #if defined(__linux)
 
 #include <cstdint>
 #include <cstring>
-#include <string>
 #include <unistd.h>
-#include <vector>
 #include <fcntl.h>
 #include <cerrno>
 #include <termios.h>
@@ -72,12 +72,9 @@ static int platform_send_command(
 static std::string platform_error_to_string(const int error) {
     return "linux_errno:" + std::string(strerror(error));
 }
-
-#elif defined(__WIN32)
+#elif defined(__linux)
 
 #include <chrono>
-#include <string>
-#include <vector>
 
 #include "Windows.h"
 #include "intsafe.h"
