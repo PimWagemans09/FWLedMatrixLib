@@ -198,7 +198,7 @@ These commands are defined in the enum `fwlm::Command`.
 
 If a command appears twice in this table it means it has multiple variants that differ in parameters and/or response 
 
-| Command      |  id  | Parameters | Response | Description                                                                       | Shorthand (Member function of `fwlm::LedMatrix`)     |
+| Command      |  id  | Parameters | Response | Description                                                                       | Shorthand (Member function of `fwlm::LedMatrix`)              |
 |--------------|:----:|:----------:|:--------:|-----------------------------------------------------------------------------------|---------------------------------------------------------------|
 | BRIGHTNESS   | 0x00 |   1 byte   |    -     | Sets the brightness                                                               | `set_brightness()`                                            |
 | BRIGHTNESS   | 0x00 |     -      |  1 byte  | Gets the brightness                                                               | `get_brightness()`                                            |

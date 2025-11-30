@@ -182,14 +182,6 @@ namespace fwlm {
                     return "fwlm:Success";
                 case -1:
                     return "fwlm:Error";
-                case -2:
-                    return "fwlm:X out of bounds";
-                case -3:
-                    return "fwlm:Y out of bounds";
-                case -4:
-                    return "fwlm:Extra parameter required";
-                case -5:
-                    return "fwlm:Too many parameters";
                 default:
                     return "fwlm:Unknown error";
             }
@@ -278,11 +270,13 @@ namespace fwlm {
                 y_size = i.size();
             }
         }
-        if ( y + y_size > 34) {
-            return Y_OUT_OF_BOUNDS;
+        if ( y + y_size > 33) {
+            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is taller than 34 pixels or your y > (33-IMAGE_HEIGHT)");
         }
-        if ( x + data.size() > 9) {
-            return X_OUT_OF_BOUNDS;
+        if ( x + data.size() > 8) {
+            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is wider than 9 pixels or your x > (8-IMAGE_WIDTH)");
         }
 
         for (size_t i = 0; i < data.size(); i++) {
@@ -295,11 +289,11 @@ namespace fwlm {
     }
 
     int LedMatrix::set_pixel(const uint8_t value, const unsigned int x, const unsigned int y) {
-        if (x > 8) {
-            return X_OUT_OF_BOUNDS;
+        if ( y > 33) {
+            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your y > 33");
         }
-        if (y > 33) {
-            return Y_OUT_OF_BOUNDS;
+        if ( x > 8) {
+            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your x > 8");
         }
         _matrix[x][y] = value;
         return SUCCESS;
@@ -351,14 +345,17 @@ namespace fwlm {
 
     int LedMatrix::game_start(const GameID game_id) {
         if (game_id == GameID::GAME_OF_LIFE) {
-            return EXTRA_PARAM_REQUIRED;
+            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start the game of life without the"
+                                        " extra parameter required for the game of life");
         }
         return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id)}, false);
     }
 
     int LedMatrix::game_start(const GameID game_id, const GameOfLifeStartParam game_of_life_param) {
         if (game_id != GameID::GAME_OF_LIFE) {
-            return TOO_MANY_PARAMS;
+            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start a gam that isn't "
+                                        "the game of life with the extra parameter that is only required for "
+                                        "the game of life");
         }
         return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id), enum_to_value(game_of_life_param)}, false);
     }

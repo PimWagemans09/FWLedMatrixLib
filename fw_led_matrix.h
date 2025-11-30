@@ -11,10 +11,6 @@ namespace fwlm {
     enum error {
         SUCCESS = 0,
         ERROR = -1,
-        X_OUT_OF_BOUNDS = -2,
-        Y_OUT_OF_BOUNDS = -3,
-        EXTRA_PARAM_REQUIRED = -4,
-        TOO_MANY_PARAMS = -5,
     };
 
     // according to https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md
@@ -227,9 +223,8 @@ namespace fwlm {
          * @param data the data to blit, in column major order
          * @param x (accepted values: 0 to 8) where to blit the data on the x-axis, this will be used as the x-position of the top-left corner of data
          * @param y (accepted values: 0 to 33) where to blit the data on the y-axis, this will be used as the y-position of the top-left corner of data
-         * @return `fwlm::SUCCESS` on success,
-         *      `fwlm::X_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the x-axis,
-         *      `fwlm::y_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the y-axis
+         * @return `fwlm::SUCCESS` on success
+         * @exception out_of_range when drawing out of bounds
          */
         int blit(const std::vector<std::vector<uint8_t>> &data, unsigned int x, unsigned int y);
 
@@ -242,9 +237,8 @@ namespace fwlm {
          * @param value the new value for the pixel
          * @param x (accepted values: 0 to 8) the x position of the pixel
          * @param y (accepted values: 0 to 33) the y position of the pixel
-         * @return `fwlm::SUCCESS` on success,
-         *      `fwlm::X_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the x-axis,
-         *      `fwlm::y_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the y-axis
+         * @return `fwlm::SUCCESS` on success
+         * @exception out_of_range when drawing out of bounds
          */
         int set_pixel(uint8_t value, unsigned int  x, unsigned int y);
 
@@ -280,10 +274,10 @@ namespace fwlm {
          * @param game_id the game to start
          * @return An error code.
          * Returns 0 on success.
-         * Returns `fwlm::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
-         * Returns `fwlm::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
          * Returns errno on failure on linux.
          * Returns the result of GetLastError() on failure on windows.
+         * @exception invalid_argument if you use the game of life start parameter incorrectly it is required for
+         * the game of life but is invalid for all other games
          */
         int game_start(GameID game_id);
 
@@ -297,10 +291,10 @@ namespace fwlm {
          * @param game_of_life_param an extra param needed when starting the game of life
          * @return An error code.
          * Returns 0 on success.
-         * Returns `fwlm::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
-         * Returns `fwlm::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
          * Returns errno on failure on linux.
          * Returns the result of GetLastError() on failure on windows.
+         * @exception invalid_argument if you use the game of life start parameter incorrectly it is required for
+         * the game of life but is invalid for all other games
          */
         int game_start(GameID game_id, GameOfLifeStartParam game_of_life_param);
 
