@@ -175,6 +175,21 @@ Any game can be quit in 2 ways:
 1. using `fwlm::LedMatrix::game_quit()`
 2. using `led_matrix.game_control(fwlm::GameControl::QUIT);`
 
+## Other commands
+
+Short explanations of commands not explained above
+
+All of the following are members of `fwlm::LedMatrix`.
+
+* `set_brightness(uint8_t brightness)` - sets the brightness of the matrix to `brightness`
+* `get_brightness(uint8_t* brightness_out)` - gets the brightness of the matrix and stores it in `*brightness_out`
+* `display_pattern(fwlm::Pattern pattern)` - displays the pre-programmed pattern `pattern` on the matrix
+* `set_sleep(bool sleep)` - sets the sleep state of the matrix to `sleep`
+* `get_sleep(bool* sleep_out)` - gets the sleep state of the matrix and stores it in `*sleep_out`
+* `set_animate(bool animate)` - sets whether the current pattern is scrolling `animate`
+* `get_animate(bool* animate_out)` - gets whether the current pattern is scrolling and stores it in `*animate_out`
+* `get_version(fwlm::Version* version_out)` - gets the firmware version of the matrix and stores it in `*version_out`
+
 ## Errors
 
 almost all functions in this library return an error code where:
