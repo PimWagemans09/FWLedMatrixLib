@@ -51,7 +51,4 @@ int main() {
     r = led_matrix.get_brightness(&brightness);
     printf("Error %d (%s)\n", r, fwlm::error_to_string(r).c_str());
     printf("Brightness: 0x%02x\n", brightness);
-
-    led_matrix.set_pixel(10, 8, 50);
-
 }
