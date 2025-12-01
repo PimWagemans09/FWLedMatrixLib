@@ -5,16 +5,12 @@
 #include <span>
 #include <vector>
 
-namespace fw_led_matrix {
+namespace fwlm {
     constexpr unsigned char FW_MAGIC[2] = {0x32,0xAC};
 
     enum error {
         SUCCESS = 0,
         ERROR = -1,
-        X_OUT_OF_BOUNDS = -2,
-        Y_OUT_OF_BOUNDS = -3,
-        EXTRA_PARAM_REQUIRED = -4,
-        TOO_MANY_PARAMS = -5,
     };
 
     // according to https://github.com/FrameworkComputer/inputmodule-rs/blob/main/commands.md
@@ -91,7 +87,7 @@ namespace fw_led_matrix {
          * convert an error code returned by this library to a string, prefixed with the source of the code.
          * @param error the code to format
          * @return a string with the error message, the string is prefixed with the source of the error code.
-         * When the source was this library or `error` == 0, the message will be prefixed by "fw_led_matrix:".
+         * When the source was this library or `error` == 0, the message will be prefixed by "fwlm:".
          * When the source was errno on Linux the message will be prefixed by "linux_errno:".
          * When the source was GetLastError on Windows the message will be prefixed by "windows_getlasterror:".
          */
@@ -103,7 +99,7 @@ namespace fw_led_matrix {
         ~LedMatrix() = default;
 
         /**
-         * convert `enum class`'s to their underlying value useful for `fw_led_matrix::Command`,`fw_led_matrix::Pattern`, `fw_led_matrix::Game`, and `fw_led_matrix::GameOfLifeStartParam`
+         * convert `enum class`'s to their underlying value useful for `fwlm::Command`,`fwlm::Pattern`, `fwlm::Game`, and `fwlm::GameOfLifeStartParam`
          * @param e the enum value to convert
          * @return the underlying value of the enum
          */
@@ -227,9 +223,8 @@ namespace fw_led_matrix {
          * @param data the data to blit, in column major order
          * @param x (accepted values: 0 to 8) where to blit the data on the x-axis, this will be used as the x-position of the top-left corner of data
          * @param y (accepted values: 0 to 33) where to blit the data on the y-axis, this will be used as the y-position of the top-left corner of data
-         * @return `fw_led_matrix::SUCCESS` on success,
-         *      `fw_led_matrix::X_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the x-axis,
-         *      `fw_led_matrix::y_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the y-axis
+         * @return `fwlm::SUCCESS` on success
+         * @exception out_of_range when drawing out of bounds
          */
         int blit(const std::vector<std::vector<uint8_t>> &data, unsigned int x, unsigned int y);
 
@@ -242,9 +237,8 @@ namespace fw_led_matrix {
          * @param value the new value for the pixel
          * @param x (accepted values: 0 to 8) the x position of the pixel
          * @param y (accepted values: 0 to 33) the y position of the pixel
-         * @return `fw_led_matrix::SUCCESS` on success,
-         *      `fw_led_matrix::X_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the x-axis,
-         *      `fw_led_matrix::y_OUT_OF_BOUNDS` if you are attempting to draw out of bounds on the y-axis
+         * @return `fwlm::SUCCESS` on success
+         * @exception out_of_range when drawing out of bounds
          */
         int set_pixel(uint8_t value, unsigned int  x, unsigned int y);
 
@@ -276,14 +270,14 @@ namespace fw_led_matrix {
          * most other commands will stop working
          *
          * If you want to start the game of life you need to pass an extra parameter to this function.
-         * It must be one of the values in `fw_led_matrix::params.game_of_life_start_param`
+         * It must be one of the values in `fwlm::params.game_of_life_start_param`
          * @param game_id the game to start
          * @return An error code.
          * Returns 0 on success.
-         * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
-         * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
          * Returns errno on failure on linux.
          * Returns the result of GetLastError() on failure on windows.
+         * @exception invalid_argument if you use the game of life start parameter incorrectly it is required for
+         * the game of life but is invalid for all other games
          */
         int game_start(GameID game_id);
 
@@ -292,15 +286,15 @@ namespace fw_led_matrix {
          * most other commands will stop working
          *
          * If you want to start the game of life you need to pass an extra parameter to this function.
-         * It must be one of the values in `fw_led_matrix::params.game_of_life_start_param`
+         * It must be one of the values in `fwlm::params.game_of_life_start_param`
          * @param game_id the game to start
          * @param game_of_life_param an extra param needed when starting the game of life
          * @return An error code.
          * Returns 0 on success.
-         * Returns `fw_led_matrix::EXTRA_PARAM_REQUIRED` if you try to start the game of life WITHOUT the extra param.
-         * Returns `fw_led_matrix::TOO_MANY_PARAMS` if you try to start any other game WITH the extra param.
          * Returns errno on failure on linux.
          * Returns the result of GetLastError() on failure on windows.
+         * @exception invalid_argument if you use the game of life start parameter incorrectly it is required for
+         * the game of life but is invalid for all other games
          */
         int game_start(GameID game_id, GameOfLifeStartParam game_of_life_param);
 

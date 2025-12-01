@@ -4,14 +4,14 @@
 #include <iostream>
 #include <span>
 #include <utility>
+#include <vector>
+#include <string>
 
 #if defined(__linux)
 
 #include <cstdint>
 #include <cstring>
-#include <string>
 #include <unistd.h>
-#include <vector>
 #include <fcntl.h>
 #include <cerrno>
 #include <termios.h>
@@ -72,12 +72,9 @@ static int platform_send_command(
 static std::string platform_error_to_string(const int error) {
     return "linux_errno:" + std::string(strerror(error));
 }
-
-#elif defined(__WIN32)
+#elif defined(__linux)
 
 #include <chrono>
-#include <string>
-#include <vector>
 
 #include "Windows.h"
 #include "intsafe.h"
@@ -176,25 +173,17 @@ static int platform_send_command(
 static std::string platform_error_to_string(int error);
 #endif
 
-namespace fw_led_matrix {
+namespace fwlm {
 
     std::string error_to_string(const int error) {
         if (error <= 0) {
             switch (error) {
                 case 0:
-                    return "fw_led_matrix:Success";
+                    return "fwlm:Success";
                 case -1:
-                    return "fw_led_matrix:Error";
-                case -2:
-                    return "fw_led_matrix:X out of bounds";
-                case -3:
-                    return "fw_led_matrix:Y out of bounds";
-                case -4:
-                    return "fw_led_matrix:Extra parameter required";
-                case -5:
-                    return "fw_led_matrix:Too many parameters";
+                    return "fwlm:Error";
                 default:
-                    return "fw_led_matrix:Unknown error";
+                    return "fwlm:Unknown error";
             }
         }
         return platform_error_to_string(error);
@@ -281,11 +270,13 @@ namespace fw_led_matrix {
                 y_size = i.size();
             }
         }
-        if ( y + y_size > 34) {
-            return Y_OUT_OF_BOUNDS;
+        if ( y + y_size > 33) {
+            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is taller than 34 pixels or your y > (33-IMAGE_HEIGHT)");
         }
-        if ( x + data.size() > 9) {
-            return X_OUT_OF_BOUNDS;
+        if ( x + data.size() > 8) {
+            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is wider than 9 pixels or your x > (8-IMAGE_WIDTH)");
         }
 
         for (size_t i = 0; i < data.size(); i++) {
@@ -298,11 +289,11 @@ namespace fw_led_matrix {
     }
 
     int LedMatrix::set_pixel(const uint8_t value, const unsigned int x, const unsigned int y) {
-        if (x > 8) {
-            return X_OUT_OF_BOUNDS;
+        if ( y > 33) {
+            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your y > 33");
         }
-        if (y > 33) {
-            return Y_OUT_OF_BOUNDS;
+        if ( x > 8) {
+            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your x > 8");
         }
         _matrix[x][y] = value;
         return SUCCESS;
@@ -354,14 +345,17 @@ namespace fw_led_matrix {
 
     int LedMatrix::game_start(const GameID game_id) {
         if (game_id == GameID::GAME_OF_LIFE) {
-            return EXTRA_PARAM_REQUIRED;
+            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start the game of life without the"
+                                        " extra parameter required for the game of life");
         }
         return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id)}, false);
     }
 
     int LedMatrix::game_start(const GameID game_id, const GameOfLifeStartParam game_of_life_param) {
         if (game_id != GameID::GAME_OF_LIFE) {
-            return TOO_MANY_PARAMS;
+            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start a gam that isn't "
+                                        "the game of life with the extra parameter that is only required for "
+                                        "the game of life");
         }
         return send_command(Command::START_GAME, std::vector<uint8_t>{enum_to_value(game_id), enum_to_value(game_of_life_param)}, false);
     }
