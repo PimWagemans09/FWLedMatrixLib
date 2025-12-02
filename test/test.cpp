@@ -32,7 +32,7 @@ int main() {
     r = led_matrix.send_command(fwlm::Command::BRIGHTNESS, {0x14});
     printf("Error %d (%s)\n", r, fwlm::error_to_string(r).c_str());
 
-    r = led_matrix.blit(image, 0 ,0);
+    r = led_matrix.blit(image, 4 ,29);
     printf("Error %d (%s)\n", r, fwlm::error_to_string(r).c_str());
 
     r = led_matrix.draw_matrix_greyscale();
