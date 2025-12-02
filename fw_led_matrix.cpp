@@ -1,8 +1,9 @@
 #include "fw_led_matrix.h"
 
 #include <algorithm>
+#include <format>
+#include <functional>
 #include <iostream>
-#include <span>
 #include <utility>
 #include <vector>
 #include <string>
@@ -270,13 +271,17 @@ namespace fwlm {
                 y_size = i.size();
             }
         }
-        if ( y + y_size > 33) {
-            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
-                                    "either your image is taller than 34 pixels or your y > (33-IMAGE_HEIGHT)");
+        if ( y > 34 - y_size) {
+            throw std::out_of_range(std::format("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is taller than 34 pixels, or your y > (34-IMAGE_HEIGHT),\n"
+                                    "y: {}, height of your image: {}, maximum y (34-IMAGE_HEIGHT): {}, ",
+                                    y, y_size, 34-y_size));
         }
-        if ( x + data.size() > 8) {
-            throw std::out_of_range("fw_led_matrix: blit: you are trying to draw out of bounds,"
-                                    "either your image is wider than 9 pixels or your x > (8-IMAGE_WIDTH)");
+        if ( x > 9 - data.size()) {
+            throw std::out_of_range(std::format("fw_led_matrix: blit: you are trying to draw out of bounds,"
+                                    "either your image is wider than 9 pixels, or your x > (9-IMAGE_WIDTH)\n"
+                                    "x: {}, width of your image: {}, maximum x (9-IMAGE_WIDTH): {}, ",
+                                    x, data.size(), 9-data.size()));
         }
 
         for (size_t i = 0; i < data.size(); i++) {
@@ -290,10 +295,12 @@ namespace fwlm {
 
     int LedMatrix::set_pixel(const uint8_t value, const unsigned int x, const unsigned int y) {
         if ( y > 33) {
-            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your y > 33");
+            throw std::out_of_range(std::format("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your y > 33\n"
+                                                "y: {}", y));
         }
         if ( x > 8) {
-            throw std::out_of_range("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your x > 8");
+            throw std::out_of_range(std::format("fw_led_matrix: set_pixel: you are trying to draw out of bounds, your x > 8\n"
+                                                "x: {}", x));
         }
         _matrix[x][y] = value;
         return SUCCESS;
