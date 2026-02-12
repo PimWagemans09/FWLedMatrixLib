@@ -360,7 +360,7 @@ namespace fwlm {
 
     int LedMatrix::game_start(const GameID game_id, const GameOfLifeStartParam game_of_life_param) {
         if (game_id != GameID::GAME_OF_LIFE) {
-            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start a gam that isn't "
+            throw std::invalid_argument("fw_led_matrix: game_start: you are trying to start a game that isn't "
                                         "the game of life with the extra parameter that is only required for "
                                         "the game of life");
         }
